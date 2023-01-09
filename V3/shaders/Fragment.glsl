@@ -57,27 +57,27 @@ float L41 = 0.64;
 float L42 = 0.6;
 float L43 = 0.84;
 
-  vec3 center0 = vec3(0.,-3.,1.2);
+  vec3 center0 = vec3(0.15,-3.,1.2);
   vec3 P01 = vec3(0.,0.,0.);
   vec3 P02 = vec3(0.,0.,0.);
   vec3 P03 = vec3(0.,0.,0.);
 
-  vec3 center1 = vec3(0.,-1.,1.);
+  vec3 center1 = vec3(0.1,-1.,1.);
   vec3 P11 = vec3(0.,0.,0.);
   vec3 P12 = vec3(0.,0.,0.);
   vec3 P13 = vec3(0.,0.,0.);
 
-  vec3 center2 = vec3(0.,-1.,0.5);
+  vec3 center2 = vec3(0.1,-1.,0.5);
   vec3 P21 = vec3(0.,0.,0.);
   vec3 P22 = vec3(0.,0.,0.);
   vec3 P23 = vec3(0.,0.,0.);
 
-  vec3 center3 = vec3(0.,-1.,0.);
+  vec3 center3 = vec3(0.1,-1.,0.);
   vec3 P31 = vec3(0.,0.,0.);
   vec3 P32 = vec3(0.,0.,0.);
   vec3 P33 = vec3(0.,0.,0.);
 
-  vec3 center4 = vec3(0.,-1.,-0.5);
+  vec3 center4 = vec3(0.1,-1.,-0.5);
   vec3 P41 = vec3(0.,0.,0.);
   vec3 P42 = vec3(0.,0.,0.);
   vec3 P43 = vec3(0.,0.,0.);
@@ -239,9 +239,9 @@ float L43 = 0.84;
 
   void main()
   {
-P01 = vec3(L01*cos(alpha01),1,L01*sin(alpha01)) + center0;
-P02 = vec3(L02*cos(alpha02),1,L02*sin(alpha02)) + P01;
-P03 = vec3(L03*cos(alpha03),0.5+(0.75 * cos(alpha03)), 0.75 * L03*sin(alpha03)) + P02 - 0.5;
+P01 = vec3(L01*cos(alpha01)*1.1,0.6,L01*sin(alpha01)*1.1) + center0;
+P02 = vec3(0.9*L02*cos(alpha02),0.8,0.9*L02*sin(alpha02)) + P01;
+P03 = vec3((0.3 *L03*cos(alpha03 * 0.5)),0.6 + (0.5*L03*cos(alpha03)), (1 * L03*sin( 0.5* alpha03))) + P02;
 
 P11 = vec3(L11*cos(alpha11),L11*sin(alpha11),0.) + center1;
 P12 = vec3(L12*cos(alpha12),L12*sin(alpha12),0.) + P11;
@@ -260,13 +260,13 @@ P42 = vec3(L42*cos(alpha42),L42*sin(alpha42),0.) + P41;
 P43 = vec3(L43*cos(alpha43),L43*sin(alpha43),0.) + P42;
     vec2 uv = fragCoord;
 
-    vec3 backgroundColor1 = vec3(0.4 ,0.4,0.43);
+    vec3 backgroundColor1 = vec3(0.1 ,0.1,0.13);
 
     vec3 col = vec3(0.);
     vec3 lp = vec3(vec3(cos(camAngle), -0., sin(camAngle))); // lookat point (aka camera target)
     vec3 ro = vec3(0., 0., 0.); // ray origin that represents camera position
     
-    float cameraRadius = 3.25;
+    float cameraRadius = 4;
     ro.x = cameraRadius * (lp.x + ro.x); // convert to polar 
     ro.z = cameraRadius * (lp.z + ro.z);
     ro.y = cameraRadius * (lp.y + ro.y);

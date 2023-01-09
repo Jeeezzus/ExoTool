@@ -177,7 +177,7 @@ while run: #Looping while the app is running
     surf = pilImageToSurface(pil)
     matplotlib.pyplot.close()
     #Just for debugging
-    print(len(fpslist))
+    #print(len(fpslist))
   try:
         screen.blit(surf, surf.get_rect(center = (430, 900)))
   except Exception:
