@@ -73,9 +73,9 @@ def portsDetection(): #To detect arduinos
      ports = list(serial.tools.list_ports.comports()) #Scan all active ports on the PC
      for p in ports:
           print(p.manufacturer)
-          if "Arduino" in p.manufacturer:
+          if "Silicon Labs" in p.manufacturer:
                print("This is an Arduino!")
-               return(serial.Serial(str(p.device), 115200, timeout=10)) #If the manufacturer of the board is "Arduino" return it
+               return(serial.Serial(str(p.device), 115200, timeout=1)) #If the manufacturer of the board is "Arduino" return it
      raise Exception("No device Found") #Raise an exception if we didn't find any arduinos
 
 def button(screen, position, text, fsize): #To draw and render buttons with pygame
@@ -193,12 +193,13 @@ while run: #Looping while the app is running
   try:
     if (ser.inWaiting() > 0): #If there is a new data
       strval = ser.readline().decode().strip() #Strip the new data
+      ser.flushInput()
       if "A" in strval: #Check if there is a grat chance that it's the good data
-        alpha[0][0] = ((int(strval.split("A")[1].split("B")[0])*1.6)/1024)-0.85 #Assign the finger value to the first value alphas
-        alpha[1][0] = ((int(strval.split("B")[1].split("C")[0])*1.6)/1024)-0.85
-        alpha[2][0] = ((int(strval.split("C")[1].split("D")[0])*1.6)/1024)-0.85
-        alpha[3][0] = ((int(strval.split("D")[1].split("E")[0])*1.6)/1024)-0.85
-        alpha[4][0] = ((int(strval.split("E")[1].split("F")[0])*1.6)/1024)-0.85
+        alpha[0][0] =  (( 4096 - int(strval.split("A")[1].split("B")[0])*1.6)/4096) - (0.30)#Assign the finger value to the first value alphas
+        alpha[1][0] =  (( 4096 - int(strval.split("B")[1].split("C")[0])*1.6)/4096) - (0.30)
+        alpha[2][0] =  (( 4096 - int(strval.split("C")[1].split("D")[0])*1.6)/4096) - (0.30)
+        alpha[3][0] =  (( 4096 - int(strval.split("D")[1].split("E")[0])*1.6)/4096) - (0.30)
+        alpha[4][0] =  (( 4096 - int(strval.split("E")[1].split("F")[0])*1.6)/4096) - (0.30)
         alphas() #Apply the change to all the phalanges
         for fing in range(5):
           for phal in range(1,4):
