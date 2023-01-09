@@ -87,7 +87,7 @@ def button(screen, position, text, fsize): #To draw and render buttons with pyga
 	return screen.blit(text_render, (x, y))#Display the button
 
 def alphas(): #Assign the anglo to each phallanges
-  for i in range(4):
+  for i in range(5):
           alpha[i][1] = alpha[i][0] +  0.25 + alpha[i][0]
           alpha[i][2] = alpha[i][1] + alpha[i][0] - 1
           alpha[i][0] += 1.
@@ -193,10 +193,11 @@ while run: #Looping while the app is running
         alpha[1][0] = ((int(strval.split("B")[1].split("C")[0])*1.6)/1024)-0.85
         alpha[2][0] = ((int(strval.split("C")[1].split("D")[0])*1.6)/1024)-0.85
         alpha[3][0] = ((int(strval.split("D")[1].split("E")[0])*1.6)/1024)-0.85
+        alpha[4][0] = ((int(strval.split("E")[1].split("F")[0])*1.6)/1024)-0.85
         alphas() #Apply the change to all the phalanges
-        for fing in range(1,5):
+        for fing in range(5):
           for phal in range(1,4):
-               prog["alpha" + str(fing) + ""+ str(phal)] = alpha[fing-1][phal-1] #Send the changes to the Fragment shader for each phalange of each finger
+               prog["alpha" + str(fing) + ""+ str(phal)] = alpha[fing][phal-1] #Send the changes to the Fragment shader for each phalange of each finger
         
     errcpt = 0 #Reset the error counter
     calculated = True #Tell the program that new values have been calculated
