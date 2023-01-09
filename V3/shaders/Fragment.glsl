@@ -189,6 +189,11 @@ float L43 = 0.84;
     co = minWithColor(co, sdCapsule(p, center4, P41, 0.16*1.3, color));
     co = minWithColor(co, sdCapsule(p, P41, P42, 0.15*1.3, color));
     co = minWithColor(co, sdCapsule(p, P42, P43, 0.15*1.3, color));
+
+    co = minWithColor(co, sdCapsule(p, center0, P01, 0.21*1.3, color));
+    co = minWithColor(co, sdCapsule(p, P01, P02, 0.2*1.3, color));
+    co = minWithColor(co, sdCapsule(p, P02, P03, 0.21*1.3, color));
+
     co = minWithColor(co, sdRoundBox(p + vec3(-0.1,2.1,-0.2), vec3(0.000000001,1.,0.75), 0.3, color));
     return co;
   }
