@@ -1,5 +1,5 @@
 #region Imports
-from PIL import Image
+from PIL import Image, ImageOps
 from pyrr import Matrix44
 
 import moderngl as mgl
@@ -37,7 +37,7 @@ up = True       #
 frame = 0       #Count frames since the start of the programm
 alpha = [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]] #angles of the fingers
 errcpt = 0      #Count error to trigger a scan of devices (arduino disconected)
-
+isLeftHand = True
 #cam settings------------------
 cameraAngle = 0 #Angle for the camera
 camAuto = False #Is the camera in automod (turning around the model)
@@ -48,12 +48,14 @@ speed = 0.01    #Speed of the turn
 #region Tools
 
 def pilImageToSurface(pilImage): #transform ans image to a PyGame surface (used to display it)
-    return pygame.image.fromstring(pilImage.tobytes(), pilImage.size, pilImage.mode).convert()
+  return pygame.image.fromstring(pilImage.tobytes(), pilImage.size, pilImage.mode).convert()
 
         
 def show_fbo(fbo, size, color_mode): #Take the FrameBuffer of modernGL
     img = Image.frombytes(color_mode, size, fbo.read(components=len(color_mode))) #Translate the FrameBuffer to a PIL image
-    img = img.transpose(Image.FLIP_TOP_BOTTOM) #Flip it
+    img = img.transpose(Image.FLIP_TOP_BOTTOM ) #Flip it
+    if (isLeftHand == True):
+      img = img.transpose(Image.FLIP_LEFT_RIGHT)
     pygameSurface = pilImageToSurface(img) #Translate it to a PyGame surface
     screen.blit(pygameSurface, pygameSurface.get_rect(center = (1400, 490))) #Display it on the left of the screen
 
