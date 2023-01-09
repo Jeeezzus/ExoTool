@@ -14,6 +14,8 @@
   float satFactor=5.;
   float movingSpeed=1.0;
 
+
+  //Uniforms (values changed by the python script)
   uniform float cameraRadius = 4;
 
   uniform float alpha01 = 0.1;
@@ -39,7 +41,9 @@
  
   uniform float camAngle = 0;
 
-  float L01 = 0.4;
+
+//length of each phallange
+float L01 = 0.4;
 float L02 = 0.4;
 float L03 = 0.6;
 
@@ -59,128 +63,68 @@ float L41 = 0.64;
 float L42 = 0.6;
 float L43 = 0.84;
 
-  vec3 center0 = vec3(0.15,-3.,1.2);
-  vec3 P01 = vec3(0.,0.,0.);
-  vec3 P02 = vec3(0.,0.,0.);
-  vec3 P03 = vec3(0.,0.,0.);
+//coordonates of the joints of the phallanges
+vec3 center0 = vec3(0.15,-3.,1.2);
+vec3 P01 = vec3(0.,0.,0.);
+vec3 P02 = vec3(0.,0.,0.);
+vec3 P03 = vec3(0.,0.,0.);
 
-  vec3 center1 = vec3(0.1,-1.,1.);
-  vec3 P11 = vec3(0.,0.,0.);
-  vec3 P12 = vec3(0.,0.,0.);
-  vec3 P13 = vec3(0.,0.,0.);
+vec3 center1 = vec3(0.1,-1.,1.);
+vec3 P11 = vec3(0.,0.,0.);
+vec3 P12 = vec3(0.,0.,0.);
+vec3 P13 = vec3(0.,0.,0.);
 
-  vec3 center2 = vec3(0.1,-1.,0.5);
-  vec3 P21 = vec3(0.,0.,0.);
-  vec3 P22 = vec3(0.,0.,0.);
-  vec3 P23 = vec3(0.,0.,0.);
+vec3 center2 = vec3(0.1,-1.,0.5);
+vec3 P21 = vec3(0.,0.,0.);
+vec3 P22 = vec3(0.,0.,0.);
+vec3 P23 = vec3(0.,0.,0.);
 
-  vec3 center3 = vec3(0.1,-1.,0.);
-  vec3 P31 = vec3(0.,0.,0.);
-  vec3 P32 = vec3(0.,0.,0.);
-  vec3 P33 = vec3(0.,0.,0.);
+vec3 center3 = vec3(0.1,-1.,0.);
+vec3 P31 = vec3(0.,0.,0.);
+vec3 P32 = vec3(0.,0.,0.);
+vec3 P33 = vec3(0.,0.,0.);
 
-  vec3 center4 = vec3(0.1,-1.,-0.5);
-  vec3 P41 = vec3(0.,0.,0.);
-  vec3 P42 = vec3(0.,0.,0.);
-  vec3 P43 = vec3(0.,0.,0.);
+vec3 center4 = vec3(0.1,-1.,-0.5);
+vec3 P41 = vec3(0.,0.,0.);
+vec3 P42 = vec3(0.,0.,0.);
+vec3 P43 = vec3(0.,0.,0.);
 
-  mat3 rotateX(float theta) {
-      float c = cos(theta);
-      float s = sin(theta);
-      return mat3(
-          vec3(1, 0, 0),
-          vec3(0, c, -s),
-          vec3(0, s, c)
-      );
-  }
+//base struct for the surfaces to store the distance and the color
+struct Surface {
+  float sd; // signed distance value
+  vec3 col; // color
+};
 
-  mat3 rotateY(float theta) {
-      float c = cos(theta);
-      float s = sin(theta);
-      return mat3(
-          vec3(c, 0, s),
-          vec3(0, 1, 0),
-          vec3(-s, 0, c)
-      );
-  }
+//Soft minimum function
+float smin(float a, float b, float k) {
+  float h = clamp(0.5 + 0.5*(a-b)/k, 0.0, 1.0);
+  return mix(a, b, h) - k*h*(1.0-h);
+}
 
-  mat3 rotateZ(float theta) {
-      float c = cos(theta);
-      float s = sin(theta);
-      return mat3(
-          vec3(c, -s, 0),
-          vec3(s, c, 0),
-          vec3(0, 0, 1)
-      );
-  }
+//minimum with colors between two surfaces
+Surface minWithColor(Surface obj1, Surface obj2) {
 
-  // Identity matrix.
-  mat3 identity() {
-      return mat3(
-          vec3(1, 0, 0),
-          vec3(0, 1, 0),
-          vec3(0, 0, 1)
-      );
-  }
+  return Surface(smin(obj1.sd,obj2.sd, 0.1), obj2.col);
+}
 
-  struct Surface {
-      float sd; // signed distance value
-      vec3 col; // color
-  };
-  float sdRoundBox( vec3 p, vec3 b, float r )
-  {
-    vec3 q = abs(p) - b;
-    return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
-  }
-  Surface sdBox( vec3 p, vec3 b, vec3 offset, vec3 col, mat3 transform)
-  {
-
-    p = (p - offset) * transform; // apply transformation matrix
-    vec3 q = abs(p) - b;
-    float d = length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
-    return Surface(d, col);
-  }
-
-  Surface sdFloor(vec3 p, vec3 col) {
-    float d = p.y + 1.;
-    return Surface(d, col);
-  }
-
-  float smin(float a, float b, float k) {
-      float h = clamp(0.5 + 0.5*(a-b)/k, 0.0, 1.0);
-      return mix(a, b, h) - k*h*(1.0-h);
-  }
-
-  Surface minWithColor(Surface obj1, Surface obj2) {
-
-    return Surface(smin(obj1.sd,obj2.sd, 0.1), obj2.col);
-  }
-
-  Surface sdCapsule( vec3 p, vec3 a, vec3 b, float r , vec3 col)
-  {
+//SDF for capsules
+Surface sdCapsule( vec3 p, vec3 a, vec3 b, float r , vec3 col) {
     vec3 pa = p - a, ba = b - a;
     float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
     return Surface(length( pa - ba*h ) - r, col);
-  }
+}
 
-  Surface sdRoundBox( vec3 p, vec3 b, float r , vec3 col)
+//SDF for rounded boxe
+Surface sdRoundBox( vec3 p, vec3 b, float r , vec3 col)
 {
   vec3 q = abs(p) - b;
   return Surface(length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r,col);
 }
 
-  Surface sdScene2(vec3 p) {
-    Surface co = sdCapsule(p, vec3(0.), vec3(1.), 1., vec3(1.,1.,1.));
-    return co;
-  }
+vec3 color = vec3(0.12,0.1,0.1);
 
-  Surface sdSphere( vec3 p, float s, vec3 col)
-{
-  return Surface(length(p)-s, col);
-}
-  vec3 color = vec3(0.12,0.1,0.1);
-
-  Surface sdScene(vec3 p) {
+//Function to agragate all the functions to make the scene. 
+Surface sdScene(vec3 p) {
     Surface co = sdCapsule(p, center1, P11, 0.2*1.3, color);
     co = minWithColor(co, sdCapsule(p, P11, P12, 0.18*1.3, color));
     co = minWithColor(co, sdCapsule(p, P12, P13, 0.16*1.3, color));
@@ -203,24 +147,26 @@ float L43 = 0.84;
 
     co = minWithColor(co, sdRoundBox(p + vec3(-0.1,2.1,-0.2), vec3(0.000000001,1.,0.75), 0.3, color));
     return co;
-  }
+}
 
-  Surface rayMarch(vec3 ro, vec3 rd, float start, float end) {
+//Ray Marching engine
+Surface rayMarch(vec3 ro, vec3 rd, float start, float end) {
     float depth = start;
     Surface co; // closest object
 
-    for (int i = 0; i < MAX_MARCHING_STEPS; i++) {
-      vec3 p = ro + depth * rd;
-      co = sdScene(p);
-      depth += co.sd;
-      if (co.sd < PRECISION || depth > end) break;
+    for (int i = 0; i < MAX_MARCHING_STEPS; i++) { //for each step
+      vec3 p = ro + depth * rd; // Vec3 to store the ray
+      co = sdScene(p); // ask the scene for the nearest object
+      depth += co.sd; // take the distance
+      if (co.sd < PRECISION || depth > end) break; // if we reached the desired precision
     }
     
     co.sd = depth;
     
-    return co;
-  }
+    return co; //return the distance and the color of the nearest object.
+}
 
+//calculate the normal of a surface
   vec3 calcNormal(in vec3 p) {
       vec2 e = vec2(1, -1) * EPSILON;
       return normalize(
@@ -230,7 +176,7 @@ float L43 = 0.84;
         e.xxx * sdScene(p + e.xxx).sd);
   }
 
-
+//calculate camera direction
   mat3 camera(vec3 cameraPos, vec3 lookAtPoint) {
     vec3 cd = normalize(lookAtPoint - cameraPos); // camera direction
     vec3 cr = normalize(cross(vec3(0, 1, 0), cd)); // camera right
@@ -239,8 +185,10 @@ float L43 = 0.84;
     return mat3(-cr, cu, -cd);
   }
 
-  void main()
-  {
+//main function
+void main() {
+
+//Assigning the coordinates of the joints of the phallanges
 P01 = vec3(L01*cos(alpha01)*1.1,0.6,L01*sin(alpha01)*1.1) + center0;
 P02 = vec3(0.9*L02*cos(alpha02),0.8,0.9*L02*sin(alpha02)) + P01;
 P03 = vec3((0.3 *L03*cos(alpha03 * 0.5)),0.6 + (0.5*L03*cos(alpha03)), (1 * L03*sin( 0.5* alpha03))) + P02;
@@ -260,13 +208,15 @@ P33 = vec3(L33*cos(alpha33),L33*sin(alpha33),0.) + P32;
 P41 = vec3(L41*cos(alpha41),L41*sin(alpha41),0.) + center4;
 P42 = vec3(L42*cos(alpha42),L42*sin(alpha42),0.) + P41;
 P43 = vec3(L43*cos(alpha43),L43*sin(alpha43),0.) + P42;
-    vec2 uv = fragCoord;
 
-    vec3 backgroundColor1 = vec3(0.1 ,0.1,0.13);
 
-    vec3 col = vec3(0.);
-    vec3 lp = vec3(vec3(cos(camAngle), -0., sin(camAngle))); // lookat point (aka camera target)
-    vec3 ro = vec3(0., 0., 0.); // ray origin that represents camera position
+vec2 uv = fragCoord; //Reading the UV from the Vertex shader
+
+vec3 backgroundColor1 = vec3(0.1 ,0.1,0.13); // Background color
+
+vec3 col = vec3(0.);
+vec3 lp = vec3(vec3(cos(camAngle), -0., sin(camAngle))); // lookat point (aka camera target)
+vec3 ro = vec3(0., 0., 0.); // ray origin that represents camera position
     
     
     ro.x = cameraRadius * (lp.x + ro.x); // convert to polar 
@@ -279,7 +229,7 @@ P43 = vec3(L43*cos(alpha43),L43*sin(alpha43),0.) + P42;
 
     if (co.sd > MAX_DIST) {
       col =  backgroundColor1;
-    } else {
+    } else { //Setup for the lights
       vec3 p = ro + rd * co.sd;
       vec3 normal = calcNormal(p);
       vec3 lightPosition = vec3(-1., 3., 0.);
@@ -294,10 +244,7 @@ P43 = vec3(L43*cos(alpha43),L43*sin(alpha43),0.) + P42;
       float dif3 = clamp(dot(normal, lightDirection3), 0.7, 200.);
 
       col = (((4*dif3) * (2* dif) * (4 * dif2))/3.5) * (co.col) ;
-      //col = (dif * dif2 * (co.col));
-      //col = dif2 * co.col;
-      //col = co.col;
     }
 
-    fragColor = vec4(col, 1.0);
+    fragColor = vec4(col, 1.0); //outputing the pixel color
   }
