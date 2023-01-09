@@ -35,7 +35,7 @@ ser = "none"    #To store the recieved infos in a global way
 run = True      #To store id the app is running
 up = True       #
 frame = 0       #Count frames since the start of the programm
-alpha = [[0,0,0],[0,0,0],[0,0,0],[0,0,0]] #angles of the fingers
+alpha = [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]] #angles of the fingers
 errcpt = 0      #Count error to trigger a scan of devices (arduino disconected)
 
 #cam settings------------------
@@ -192,7 +192,7 @@ while run: #Looping while the app is running
         alpha[0][0] = ((int(strval.split("A")[1].split("B")[0])*1.6)/1024)-0.85 #Assign the finger value to the first value alphas
         alpha[1][0] = ((int(strval.split("B")[1].split("C")[0])*1.6)/1024)-0.85
         alpha[2][0] = ((int(strval.split("C")[1].split("D")[0])*1.6)/1024)-0.85
-        alpha[3][0] = ((int(strval.split("D")[1])*1.6)/1024)-0.85
+        alpha[3][0] = ((int(strval.split("D")[1].split("E")[0])*1.6)/1024)-0.85
         alphas() #Apply the change to all the phalanges
         for fing in range(1,5):
           for phal in range(1,4):

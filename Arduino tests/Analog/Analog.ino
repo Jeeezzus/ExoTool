@@ -15,6 +15,6 @@ void loop() {
   A_2 = (ratio * analogRead(A2)) + ((1-ratio) * A_2);
   A_3 = (ratio * analogRead(A3)) + ((1-ratio) * A_3);
   delay(110);
-    Serial.println("A" + String(A_0) + "B" + String(A_1) + "C" + String(A_2) + "D" +String(A_3));
+    Serial.println("A" + String(A_0) + "B" + String(A_1) + "C" + String(A_2) + "D" +String(A_3) + "E" +String(A_3) + "F"); 
 
 }

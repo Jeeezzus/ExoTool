@@ -11,7 +11,7 @@
   const float PI = 3.14159265359;
 
 
-float satFactor=0.5;
+float satFactor=5.;
  float movingSpeed=1.0;
 
   uniform float alpha01 = 0.1;
@@ -171,6 +171,11 @@ float L43 = 0.84;
     Surface co = sdCapsule(p, vec3(0.), vec3(1.), 1., vec3(1.,1.,1.));
     return co;
   }
+
+  Surface sdSphere( vec3 p, float s, vec3 col)
+{
+  return Surface(length(p)-s, col);
+}
   vec3 color = vec3(0.12,0.1,0.1);
 
   Surface sdScene(vec3 p) {
@@ -192,7 +197,7 @@ float L43 = 0.84;
 
     co = minWithColor(co, sdCapsule(p, center0, P01, 0.21*1.3, color));
     co = minWithColor(co, sdCapsule(p, P01, P02, 0.2*1.3, color));
-    co = minWithColor(co, sdCapsule(p, P02, P03, 0.21*1.3, color));
+    co = minWithColor(co, sdCapsule(p, P02, P03, 0.21*1.3, color));    
 
     co = minWithColor(co, sdRoundBox(p + vec3(-0.1,2.1,-0.2), vec3(0.000000001,1.,0.75), 0.3, color));
     return co;
@@ -255,7 +260,7 @@ P42 = vec3(L42*cos(alpha42),L42*sin(alpha42),0.) + P41;
 P43 = vec3(L43*cos(alpha43),L43*sin(alpha43),0.) + P42;
     vec2 uv = fragCoord;
 
-    vec3 backgroundColor1 = vec3(0.8 ,0.8,0.83);
+    vec3 backgroundColor1 = vec3(0.4 ,0.4,0.43);
 
     vec3 col = vec3(0.);
     vec3 lp = vec3(vec3(cos(camAngle), -0., sin(camAngle))); // lookat point (aka camera target)
@@ -277,16 +282,16 @@ P43 = vec3(L43*cos(alpha43),L43*sin(alpha43),0.) + P42;
       vec3 normal = calcNormal(p);
       vec3 lightPosition = vec3(-1., 3., 0.);
       vec3 lightDirection = normalize(lightPosition - p);
-      vec3 lightPosition3 = vec3(0., -1., 0.);
-      vec3 lightDirection3 = normalize(lightPosition - p);
-      vec3 lightPosition2 = vec3(-0, -4, 1);
+      vec3 lightPosition3 = vec3(3.,-2.,-1.);
+      vec3 lightDirection3 = normalize(lightPosition3 - p);
+      vec3 lightPosition2 = vec3(-3.,4.,6.);
       vec3 lightDirection2 = normalize(lightPosition2 - p);
 
       float dif = clamp(dot(normal, lightDirection), 0.7, 100.);
-      float dif2 = clamp(dot(normal, lightDirection2), 0.7, 100.);
+      float dif2 = clamp(dot(normal, lightDirection2), 0.7, 200.);
       float dif3 = clamp(dot(normal, lightDirection3), 0.7, 200.);
 
-      col = ((3*dif3) * (2* dif) * (2 * dif2) * (co.col))/2;
+      col = (((4*dif3) * (2* dif) * (4 * dif2))/3.5) * (co.col) ;
       //col = (dif * dif2 * (co.col));
       //col = dif2 * co.col;
       //col = co.col;
