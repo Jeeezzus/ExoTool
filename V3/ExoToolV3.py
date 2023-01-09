@@ -38,10 +38,12 @@ frame = 0       #Count frames since the start of the programm
 alpha = [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]] #angles of the fingers
 errcpt = 0      #Count error to trigger a scan of devices (arduino disconected)
 isLeftHand = True
+handButtonText = "Right Hand"
 #cam settings------------------
 cameraAngle = 0 #Angle for the camera
 camAuto = False #Is the camera in automod (turning around the model)
 speed = 0.01    #Speed of the turn
+camRadius = 4
 #------------------------------
 #endregion
 
@@ -54,7 +56,7 @@ def pilImageToSurface(pilImage): #transform ans image to a PyGame surface (used 
 def show_fbo(fbo, size, color_mode): #Take the FrameBuffer of modernGL
     img = Image.frombytes(color_mode, size, fbo.read(components=len(color_mode))) #Translate the FrameBuffer to a PIL image
     img = img.transpose(Image.FLIP_TOP_BOTTOM ) #Flip it
-    if (isLeftHand == True):
+    if (isLeftHand == False):
       img = img.transpose(Image.FLIP_LEFT_RIGHT)
     pygameSurface = pilImageToSurface(img) #Translate it to a PyGame surface
     screen.blit(pygameSurface, pygameSurface.get_rect(center = (1400, 490))) #Display it on the left of the screen
@@ -131,6 +133,7 @@ vao.render(mode=mgl.TRIANGLES)
 #region initialisation
 #assign first position of phalanges
 alphas()
+prog["cameraRadius"] = camRadius
 
 plt.style.use('dark_background')
 start = time.time()
@@ -249,6 +252,23 @@ while run: #Looping while the app is running
           graphMax = 300
         if b7.collidepoint(pygame.mouse.get_pos()):
           graphMax = -1
+        if b9.collidepoint(pygame.mouse.get_pos()):
+          if(camRadius <= 8):
+            camRadius += 0.25
+          prog["cameraRadius"] = camRadius
+        if b8.collidepoint(pygame.mouse.get_pos()):
+          if(camRadius >= 1.5):
+            camRadius -= 0.25
+          prog["cameraRadius"] = camRadius
+        if b10.collidepoint(pygame.mouse.get_pos()):
+          if(isLeftHand == True):
+            handButtonText = "Left Hand"
+            isLeftHand = False
+          else:
+            handButtonText = "Right Hand"
+            isLeftHand = True
+
+
   #endregion
   
   #region Rendering
@@ -261,14 +281,18 @@ while run: #Looping while the app is running
     pass
   show_fbo(fbo, SIZE, COLOR_MODE) #Display function for the 3D visu
   #buttons for the camera
-  b1 = button(screen, (200, 700), "Auto", 60)
-  b2 = button(screen, (350, 700), "+", 60)
-  b3 = button(screen, (110, 700), " - ", 60)
+  b1 = button(screen, (200, 500), "Auto", 60)
+  b2 = button(screen, (350, 500), "+", 60)
+  b3 = button(screen, (120, 500), " - ", 60)
+  b8 = button(screen, (160, 400), "Zoom +", 60)
+  b9 = button(screen, (160, 600), "Zoom -", 60)
 
   b4 = button(screen, (50, 800), "30 sec", 20)
   b5 = button(screen, (125, 800), "1 min", 20)
   b6 = button(screen, (190, 800), "5 min", 20)
   b7 = button(screen, (255, 800), "All", 20)
+
+  b10 = button(screen, (880, 20), handButtonText, 20)
   pygame.display.flip()
   #endregion
   

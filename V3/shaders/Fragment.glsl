@@ -11,8 +11,10 @@
   const float PI = 3.14159265359;
 
 
-float satFactor=5.;
- float movingSpeed=1.0;
+  float satFactor=5.;
+  float movingSpeed=1.0;
+
+  uniform float cameraRadius = 4;
 
   uniform float alpha01 = 0.1;
   uniform float alpha02 = 0.1;
@@ -266,7 +268,7 @@ P43 = vec3(L43*cos(alpha43),L43*sin(alpha43),0.) + P42;
     vec3 lp = vec3(vec3(cos(camAngle), -0., sin(camAngle))); // lookat point (aka camera target)
     vec3 ro = vec3(0., 0., 0.); // ray origin that represents camera position
     
-    float cameraRadius = 4;
+    
     ro.x = cameraRadius * (lp.x + ro.x); // convert to polar 
     ro.z = cameraRadius * (lp.z + ro.z);
     ro.y = cameraRadius * (lp.y + ro.y);
