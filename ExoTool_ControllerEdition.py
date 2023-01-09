@@ -155,7 +155,7 @@ while run: #Looping while the app is running
     prog["camAngle"] = cameraAngle
 
   clock.tick(60) #Tick Pygame with a limitation of 60 fps (is we have more than 60, Pygame will wait before continuing)
-  text = font2.render("ExoTool Viewer V1.3", 1, pygame.Color("orange")) #create the text object for the title
+  text = font2.render("ExoTool Viewer V1.4", 1, pygame.Color("orange")) #create the text object for the title
   
   #endregion
   
