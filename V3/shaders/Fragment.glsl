@@ -57,6 +57,11 @@ float L41 = 0.64;
 float L42 = 0.6;
 float L43 = 0.84;
 
+  vec3 center0 = vec3(0.,-3.,1.2);
+  vec3 P01 = vec3(0.,0.,0.);
+  vec3 P02 = vec3(0.,0.,0.);
+  vec3 P03 = vec3(0.,0.,0.);
+
   vec3 center1 = vec3(0.,-1.,1.);
   vec3 P11 = vec3(0.,0.,0.);
   vec3 P12 = vec3(0.,0.,0.);
@@ -224,8 +229,11 @@ float L43 = 0.84;
 
   void main()
   {
+P01 = vec3(L01*cos(alpha01),1,L01*sin(alpha01)) + center0;
+P02 = vec3(L02*cos(alpha02),1,L02*sin(alpha02)) + P01;
+P03 = vec3(L03*cos(alpha03),0.5+(0.75 * cos(alpha03)), 0.75 * L03*sin(alpha03)) + P02 - 0.5;
 
-  P11 = vec3(L11*cos(alpha11),L11*sin(alpha11),0.) + center1;
+P11 = vec3(L11*cos(alpha11),L11*sin(alpha11),0.) + center1;
 P12 = vec3(L12*cos(alpha12),L12*sin(alpha12),0.) + P11;
 P13 = vec3(L13*cos(alpha13),L13*sin(alpha13),0.) + P12;
 
