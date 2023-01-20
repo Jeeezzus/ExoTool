@@ -1,0 +1,8 @@
+pyrr
+moderngl
+pygame
+numpy
+matplotlib
+serial
+pygame
+pyserial
