@@ -1,0 +1,23 @@
+pip install PyInstaller
+
+rm -rf ./Linux_Deploy/
+mkdir ./Linux_Deploy
+
+mkdir ./Linux_Deploy/ExoTool_ControllerEdition
+python3 -m PyInstaller ExoTool_ControllerEdition.py --onefile --hidden-import glcontext
+
+cp -r ./dist ./Linux_Deploy/ExoTool_ControllerEdition
+rm -r ./dist
+cp -r ./build ./Linux_Deploy/ExoTool_ControllerEdition
+rm -r ./build
+cp -r ./shaders ./Linux_Deploy/ExoTool_ControllerEdition/dist
+
+mkdir ./Linux_Deploy/ExoTool
+
+python3 -m PyInstaller ExoTool.py --onefile --hidden-import glcontext
+
+cp -r ./dist ./Linux_Deploy/ExoTool
+rm -r ./dist
+cp -r ./build ./Linux_Deploy/ExoTool
+rm -r ./build
+cp -r ./shaders ./Linux_Deploy/ExoTool/dist

@@ -15,6 +15,7 @@ import serial.tools.list_ports
 import time
 import math 
 from matplotlib.ticker import MaxNLocator
+
 #endregion
 
 #region PyGame Initialisation
@@ -45,6 +46,7 @@ camAuto = False #Is the camera in automod (turning around the model)
 speed = 0.01    #Speed of the turn
 camRadius = 4
 #------------------------------
+bluetoothEnabled = False
 #endregion
 
 #region Tools
@@ -216,7 +218,11 @@ while run: #Looping while the app is running
                while found == False: #Try to scan for new devices, loop while not found
                     clock.tick(5)#Reduce frame rate 
                     screen.blit(text, (10, 60))
-                    pygame.display.update() #Display an error message
+                    #Display an error message
+                    if event.type == pygame.QUIT:
+                      run = False
+                      pygame.quit()
+                    pygame.display.flip()
                     try:
                          ser = portsDetection()
                          found = True
