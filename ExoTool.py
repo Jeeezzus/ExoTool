@@ -16,6 +16,8 @@ import time
 import math 
 from matplotlib.ticker import MaxNLocator
 
+import tkinter as tk
+import bluetooth
 #endregion
 
 #region PyGame Initialisation
@@ -47,6 +49,7 @@ speed = 0.01    #Speed of the turn
 camRadius = 4
 #------------------------------
 bluetoothEnabled = False
+sock1 = None
 #endregion
 
 #region Tools
@@ -71,14 +74,55 @@ def update_fps(): #Get fps from Pygame and store it into an array and put it int
 	return fps_text
 
 def portsDetection(): #To detect arduinos
-     print("waiting for connection...")
-     ports = list(serial.tools.list_ports.comports()) #Scan all active ports on the PC
-     for p in ports:
-          print(p.manufacturer)
-          if "Silicon Labs" in p.manufacturer:
-               print("This is an Arduino!")
-               return(serial.Serial(str(p.device), 115200, timeout=1)) #If the manufacturer of the board is "Arduino" return it
-     raise Exception("No device Found") #Raise an exception if we didn't find any arduinos
+     if(bluetoothEnabled == False):
+      print("waiting for connection...")
+      ports = list(serial.tools.list_ports.comports()) #Scan all active ports on the PC
+      for p in ports:
+            print(p.manufacturer)
+            if "Silicon Labs" in p.manufacturer:
+                print("This is an Arduino!")
+                return(serial.Serial(str(p.device), 115200, timeout=1)) #If the manufacturer of the board is "Arduino" return it
+      raise Exception("No device Found") #Raise an exception if we didn't find any arduinos
+     else:
+        devices = bluetooth.discover_devices(duration=1, lookup_names=True)
+        if not devices:
+          raise Exception("No device Found") #Raise an exception if we didn't find any arduinos
+        
+        # Create a simple GUI with a dropdown menu to select the device
+        root = tk.Tk()
+        root.title("Bluetooth Device Selection")
+        label = tk.Label(root, text="Select a Bluetooth device:")
+        label.pack(pady=10)
+        device_var = tk.StringVar(root)
+        device_var.set(devices[0][1])
+        dropdown = tk.OptionMenu(root, device_var, *[device[1] for device in devices])
+        dropdown.pack(pady=10)
+        connect_button = tk.Button(root, text="Connect", command=root.destroy)
+        connect_button.pack(pady=10)
+        root.mainloop()
+        root.destroy
+
+        # Retrieve the address of the selected device
+        device_address = None
+        for device in devices:
+            if device[1] == device_var.get():
+                device_address = device[0]
+                break
+        if device_address is None:
+            print("Invalid device selection.")
+            raise Exception("Invalid device selection.")
+            return
+
+        # Connect to the selected device and receive data
+        port = 1  # The RFCOMM channel used by the Bluetooth device
+        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        sock.connect((device_address, port))
+        global sock1 
+        sock1 = sock
+        print("sock: " , sock)
+        print("sock1: " , sock1)
+        print("Connected to {}".format(device_var.get()))
+
 
 def button(screen, position, text, fsize): #To draw and render buttons with pygame
 	fontb = pygame.font.SysFont("Arial", fsize)
@@ -193,19 +237,46 @@ while run: #Looping while the app is running
 
   #region Data Reception
   try:
-    if (ser.inWaiting() > 0): #If there is a new data
-      strval = ser.readline().decode().strip() #Strip the new data
-      ser.flushInput()
-      if "A" in strval: #Check if there is a grat chance that it's the good data
-        alpha[0][0] =  (( 4096 - int(strval.split("A")[1].split("B")[0])*1.6)/4096) - (0.30)#Assign the finger value to the first value alphas
-        alpha[1][0] =  (( 4096 - int(strval.split("B")[1].split("C")[0])*1.6)/4096) - (0.30)
-        alpha[2][0] =  (( 4096 - int(strval.split("C")[1].split("D")[0])*1.6)/4096) - (0.30)
-        alpha[3][0] =  (( 4096 - int(strval.split("D")[1].split("E")[0])*1.6)/4096) - (0.30)
-        alpha[4][0] =  (( 4096 - int(strval.split("E")[1].split("F")[0])*1.6)/4096) - (0.30)
-        alphas() #Apply the change to all the phalanges
-        for fing in range(5):
-          for phal in range(1,4):
-               prog["alpha" + str(fing) + ""+ str(phal)] = alpha[fing][phal-1] #Send the changes to the Fragment shader for each phalange of each finger
+    if (bluetoothEnabled == False):
+      if (ser.inWaiting() > 0): #If there is a new data
+        strval = ser.readline().decode().strip() #Strip the new data
+        ser.flushInput()
+        if "A" in strval: #Check if there is a grat chance that it's the good data
+          alpha[0][0] =  (( 4096 - int(strval.split("A")[1].split("B")[0])*1.6)/4096) - (0.30)#Assign the finger value to the first value alphas
+          alpha[1][0] =  (( 4096 - int(strval.split("B")[1].split("C")[0])*1.6)/4096) - (0.30)
+          alpha[2][0] =  (( 4096 - int(strval.split("C")[1].split("D")[0])*1.6)/4096) - (0.30)
+          alpha[3][0] =  (( 4096 - int(strval.split("D")[1].split("E")[0])*1.6)/4096) - (0.30)
+          alpha[4][0] =  (( 4096 - int(strval.split("E")[1].split("F")[0])*1.6)/4096) - (0.30)
+          alphas() #Apply the change to all the phalanges
+          for fing in range(5):
+            for phal in range(1,4):
+                prog["alpha" + str(fing) + ""+ str(phal)] = alpha[fing][phal-1] #Send the changes to the Fragment shader for each phalange of each finger
+    else:
+        #print("trying to read on", sock1)
+        try:
+          data = sock1.recv(1024)
+          #print("raw data: ", data)
+        except:
+           print("data not recieved")
+        strval = str(data.decode().strip()) #Strip the new data
+        #print("strval" , strval)
+        if "A" in strval: #Check if there is a grat chance that it's the good data
+          #print("THERE IS A A")
+          alpha[0][0] =  (( 4096 - int(strval.split("A")[1].split("B")[0])*1.6)/4096) - (0.30)#Assign the finger value to the first value alphas
+          #print("alpha1: " , alpha[0][0])
+          alpha[1][0] =  (( 4096 - int(strval.split("B")[1].split("C")[0])*1.6)/4096) - (0.30)
+          #print("alpha2: " , alpha[1][0])
+          alpha[2][0] =  (( 4096 - int(strval.split("C")[1].split("D")[0])*1.6)/4096) - (0.30)
+          #print("alpha3: " , alpha[2][0])
+          alpha[3][0] =  (( 4096 - int(strval.split("D")[1].split("E")[0])*1.6)/4096) - (0.30)
+          #print("alpha4: " , alpha[3][0])
+          alpha[4][0] =  (( 4096 - int(strval.split("E")[1].split("F")[0])*1.6)/4096) - (0.30)
+          #print("alpha5: " , alpha[4][0])
+          alphas() #Apply the change to all the phalanges
+          #print("alphas: " , alpha)
+          for fing in range(5):
+            for phal in range(1,4):
+                prog["alpha" + str(fing) + ""+ str(phal)] = alpha[fing][phal-1] #Send the changes to the Fragment shader for each phalange of each finger
         
     errcpt = 0 #Reset the error counter
     calculated = True #Tell the program that new values have been calculated
@@ -274,10 +345,21 @@ while run: #Looping while the app is running
           else:
             handButtonText = "Right Hand"
             isLeftHand = True
+        if b11.collidepoint(pygame.mouse.get_pos()):
+           bluetoothEnabled = not bluetoothEnabled
+           text = font2.render("Bluetooth waiting for connection...", 1, pygame.Color("red"))
+           pygame.display.flip()
+           f = False
+           while f == False:
+            try:
+              portsDetection()
+              f = True
+            except:
+               f = False
 
 
   #endregion
-  
+
   #region Rendering
   if camModified == True or calculated == True:
     vao.render(mode=mgl.TRIANGLES) #Render the shader
@@ -300,8 +382,16 @@ while run: #Looping while the app is running
   b7 = button(screen, (255, 800), "All", 20)
 
   b10 = button(screen, (880, 20), handButtonText, 20)
+  if(bluetoothEnabled == True):
+    b11 = button(screen, (1200, 20), "Bluetooth", 20)
+  else:
+    b11 = button(screen, (1200, 20), "Serial", 20)
   pygame.display.flip()
   #endregion
   
 #endregion
 pygame.quit()
+try:
+  sock.close()
+except:
+   print()
